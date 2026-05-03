@@ -1,0 +1,72 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cek apakah requester adalah pasangan (male) yang sudah link ke userId.
+    // Dilakukan dengan baca profile requester & cek field `partnerUid`.
+    function isLinkedPartnerOf(userId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid)/profile/data)
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)/profile/data).data.partnerUid == userId;
+    }
+
+    // Data user hanya bisa ditulis oleh pemiliknya sendiri.
+    // Tapi bisa dibaca oleh pemiliknya ATAU pasangan yang sudah ter-link.
+    match /users/{userId} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == userId
+                      || isLinkedPartnerOf(userId));
+      allow write: if request.auth != null
+                   && request.auth.uid == userId;
+
+      // Subkoleksi: profile, cycles, logs, settings.
+      match /{subcollection}/{docId} {
+        allow read: if request.auth != null
+                    && (request.auth.uid == userId
+                        || isLinkedPartnerOf(userId));
+        allow write: if request.auth != null
+                     && request.auth.uid == userId;
+      }
+    }
+
+    // Mapping kode pasangan → ownerUid. Top-level supaya bisa dilookup
+    // tanpa harus tahu uid pemilik.
+    match /partnerCodes/{code} {
+      // Authed user manapun boleh read (dipakai male untuk lookup kode).
+      allow read: if request.auth != null;
+      // Hanya owner yang boleh create entry untuk dirinya sendiri.
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+      // Hanya owner yang boleh delete entrynya.
+      allow delete: if request.auth != null
+                    && resource.data.ownerUid == request.auth.uid;
+      // Update diperbolehkan oleh pasangan yang sedang link / sudah linked
+      // untuk mengubah HANYA field linkedUid/linkedName/linkedEmail/linkedAt.
+      // Dua lapisan proteksi:
+      //   1. `diff().affectedKeys().hasOnly([...])` → mengunci field yang
+      //      boleh berubah, jadi ownerUid/createdAt dan field lain di-reject.
+      //   2. Cek linkedUid: hanya boleh SET linkedUid ke diri sendiri kalau
+      //      slot kosong/sudah milik sendiri, atau CLEAR linkedUid kalau
+      //      tadinya milik sendiri. Ini mencegah user lain "mencuri" link.
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['linkedUid', 'linkedName', 'linkedEmail', 'linkedAt'])
+                    && (
+                      // Linking: new linkedUid == self, slot sebelumnya null / self.
+                      (
+                        request.resource.data.get('linkedUid', null) == request.auth.uid
+                        && (
+                          resource.data.get('linkedUid', null) == null
+                          || resource.data.get('linkedUid', null) == request.auth.uid
+                        )
+                      )
+                      // Unlinking: slot tadinya self, sekarang dikosongkan.
+                      || (
+                        resource.data.get('linkedUid', null) == request.auth.uid
+                        && request.resource.data.get('linkedUid', null) == null
+                      )
+                    );
+    }
+  }
+}

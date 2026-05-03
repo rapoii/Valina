@@ -1,0 +1,82 @@
+[
+  {
+    "id": "menstrual-cycle-101",
+    "title": "Memahami Siklus Menstruasi: 4 Fase Utama",
+    "category": "Kesehatan Menstruasi",
+    "readMinutes": 5,
+    "emoji": "🌸",
+    "gradient": ["FFB5C5", "FFD3DC"],
+    "summary": "Kenali fase menstruasi, folikular, ovulasi, dan luteal — dan apa yang terjadi pada tubuhmu di setiap fase.",
+    "body": "Siklus menstruasi rata-rata berlangsung 28 hari, namun rentang 21–35 hari masih dianggap normal.\n\n## Fase 1 — Menstruasi (Hari 1–5)\nLapisan dinding rahim meluruh dan keluar sebagai darah haid. Kadar estrogen & progesteron rendah.\n\n## Fase 2 — Folikular (Hari 1–13)\nFolikel di ovarium mulai matang. Estrogen naik, energi meningkat, mood biasanya cerah.\n\n## Fase 3 — Ovulasi (Hari 14)\nSel telur dilepaskan. Ini adalah puncak kesuburan. Suhu basal sedikit naik.\n\n## Fase 4 — Luteal (Hari 15–28)\nProgesteron mendominasi. Bila tidak hamil, hormon turun dan PMS bisa muncul: kembung, sensitif, ngidam.\n\nSetiap tubuh berbeda — pelacakan rutin akan membantumu mengenali pola pribadi."
+  },
+  {
+    "id": "fertile-window",
+    "title": "Apa Itu Fertile Window?",
+    "category": "Kesuburan",
+    "readMinutes": 4,
+    "emoji": "🌷",
+    "gradient": ["C7B5E8", "E5DCFB"],
+    "summary": "Fertile window adalah 6 hari di mana peluang hamil paling tinggi. Berikut cara mengidentifikasinya.",
+    "body": "Fertile window mencakup 5 hari sebelum ovulasi dan hari ovulasi itu sendiri.\n\n## Mengapa 5 Hari?\nSperma dapat bertahan hidup di saluran reproduksi hingga 5 hari, sedangkan sel telur hanya 12–24 jam.\n\n## Tanda-Tanda Ovulasi\n- Lendir serviks bening seperti putih telur\n- Suhu basal meningkat 0.3–0.5°C\n- Sedikit nyeri di salah satu sisi perut bawah\n- Libido meningkat\n\n## Catat dengan Konsisten\nSemakin sering kamu mencatat data, semakin akurat prediksi yang aplikasi berikan."
+  },
+  {
+    "id": "pms-management",
+    "title": "Mengelola PMS Tanpa Stres",
+    "category": "Gaya Hidup",
+    "readMinutes": 6,
+    "emoji": "🍵",
+    "gradient": ["FFC8A2", "FFE2CC"],
+    "summary": "Tips praktis menghadapi PMS: dari nutrisi, olahraga, hingga manajemen tidur.",
+    "body": "Premenstrual Syndrome (PMS) muncul di fase luteal akhir. Gejala umum: kembung, mood swing, jerawat, dan ngidam.\n\n## Nutrisi\n- Kurangi garam (mengurangi kembung)\n- Tambah magnesium: pisang, kacang almond, dark chocolate\n- Minum cukup air, hindari kafein berlebih\n\n## Olahraga Ringan\nJalan kaki 30 menit atau yoga melepaskan endorfin yang membantu mood.\n\n## Tidur Berkualitas\nTidur 7–9 jam per malam. Konsistensi waktu tidur penting.\n\n## Self-Care\nMandi air hangat, journaling, atau aromaterapi lavender bisa sangat membantu."
+  },
+  {
+    "id": "iron-rich-foods",
+    "title": "Makanan Kaya Zat Besi Saat Haid",
+    "category": "Nutrisi",
+    "readMinutes": 4,
+    "emoji": "🥗",
+    "gradient": ["A8DCC6", "D4F0E2"],
+    "summary": "Saat haid, tubuh kehilangan zat besi. Inilah daftar makanan yang membantu memulihkannya.",
+    "body": "Selama menstruasi, kamu kehilangan rata-rata 30–40 ml darah. Itu artinya zat besi juga ikut keluar.\n\n## Sumber Zat Besi Heme (mudah diserap)\n- Daging merah tanpa lemak\n- Hati ayam\n- Ikan: salmon, tuna, sarden\n- Telur\n\n## Sumber Zat Besi Non-Heme\n- Bayam, kangkung\n- Kacang-kacangan: lentil, kacang merah\n- Tahu & tempe\n- Quinoa\n\n## Tips\nKombinasikan dengan vitamin C (jeruk, paprika, brokoli) untuk meningkatkan penyerapan. Hindari teh & kopi saat makan karena tanin menghambat penyerapan zat besi."
+  },
+  {
+    "id": "cycle-myths",
+    "title": "5 Mitos Menstruasi yang Perlu Diluruskan",
+    "category": "Mitos vs Fakta",
+    "readMinutes": 5,
+    "emoji": "💡",
+    "gradient": ["FFD3DC", "FFE9EE"],
+    "summary": "Banyak mitos seputar haid yang masih beredar. Mari kita pisahkan fakta dari fiksi.",
+    "body": "## Mitos 1: \"Tidak boleh keramas saat haid\"\n**Fakta**: Tidak ada bukti medis. Kebersihan justru penting saat haid.\n\n## Mitos 2: \"Olahraga memperburuk kram\"\n**Fakta**: Sebaliknya, olahraga ringan melepaskan endorfin yang meredakan nyeri.\n\n## Mitos 3: \"Siklus harus tepat 28 hari\"\n**Fakta**: 21–35 hari masih normal. Yang penting konsisten dengan pola pribadimu.\n\n## Mitos 4: \"Tidak bisa hamil saat haid\"\n**Fakta**: Jarang, tapi mungkin — terutama bila siklus pendek.\n\n## Mitos 5: \"PMS hanya alasan\"\n**Fakta**: PMS adalah kondisi medis nyata yang dialami 75% perempuan."
+  },
+  {
+    "id": "tracking-bbt",
+    "title": "Cara Mengukur Suhu Basal Tubuh (BBT)",
+    "category": "Kesuburan",
+    "readMinutes": 4,
+    "emoji": "🌡️",
+    "gradient": ["B8A4E3", "DCD0F2"],
+    "summary": "BBT membantu mengonfirmasi ovulasi. Berikut cara mengukur yang akurat.",
+    "body": "Suhu basal tubuh (Basal Body Temperature/BBT) adalah suhu tubuh saat istirahat penuh.\n\n## Kapan Mengukur\n- Segera setelah bangun, sebelum bangun dari tempat tidur\n- Sebelum minum, makan, atau ke kamar mandi\n- Setiap hari di waktu yang sama (±30 menit)\n\n## Bagaimana Pola yang Normal\nFase folikular: 36.1–36.4°C\nSetelah ovulasi: naik 0.3–0.5°C dan tetap tinggi sampai haid berikutnya\n\n## Tips Akurasi\n- Pakai termometer digital dengan akurasi 2 desimal\n- Tidur minimal 4 jam berturut-turut sebelum ukur\n- Catat di aplikasi setiap hari untuk melihat polanya"
+  },
+  {
+    "id": "irregular-cycles",
+    "title": "Siklus Tidak Teratur: Kapan Harus Khawatir?",
+    "category": "Kesehatan Menstruasi",
+    "readMinutes": 5,
+    "emoji": "⚖️",
+    "gradient": ["FFB5C5", "FFD3DC"],
+    "summary": "Siklus yang berubah-ubah belum tentu masalah, tapi ada batasannya. Berikut panduannya.",
+    "body": "Siklus disebut tidak teratur jika panjangnya bervariasi >7–9 hari antar siklus.\n\n## Penyebab Umum (Tidak Bahaya)\n- Stres berat\n- Perubahan berat badan drastis\n- Olahraga berlebihan\n- Perubahan pola tidur\n- Awal/akhir masa pubertas\n- Mendekati menopause\n\n## Tanda yang Perlu Konsultasi Dokter\n- Tidak haid >3 bulan (di luar kehamilan)\n- Pendarahan sangat berat (ganti pembalut <2 jam)\n- Nyeri haid yang mengganggu aktivitas\n- Pendarahan di luar siklus\n- Siklus <21 hari atau >35 hari konsisten\n\n## Aplikasi Membantu\nDengan tracking rutin, kamu punya data konkret untuk dibahas dengan dokter."
+  },
+  {
+    "id": "hydration-cycle",
+    "title": "Hidrasi Sepanjang Siklus",
+    "category": "Gaya Hidup",
+    "readMinutes": 3,
+    "emoji": "💧",
+    "gradient": ["A8DCC6", "D4F0E2"],
+    "summary": "Kebutuhan air tubuh berubah di setiap fase siklus. Inilah panduan praktisnya.",
+    "body": "Air membantu mengurangi kembung, meredakan kram, dan menjaga energi.\n\n## Rekomendasi Harian\n- Fase folikular: 8 gelas (2 L)\n- Ovulasi: 8–9 gelas\n- Luteal/PMS: 9–10 gelas (lebih banyak karena retensi air)\n- Menstruasi: 9–10 gelas (kompensasi cairan keluar)\n\n## Tips\n- Mulai pagi dengan segelas air hangat + lemon\n- Bawa botol minum kemana-mana\n- Tambahkan irisan mentimun atau mint untuk variasi\n- Sup & buah-buahan juga menambah hidrasi"
+  }
+]
