@@ -1,0 +1,5 @@
+/// Konstanta API key — idealnya dipindah ke env/remote config untuk produksi.
+/// Copy this file to api_keys.dart and fill in your own API keys.
+abstract final class ApiKeys {
+  static const openRouterKey = 'YOUR_OPENROUTER_API_KEY_HERE';
+}
