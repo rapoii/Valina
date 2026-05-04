@@ -26,7 +26,7 @@ class ValinaApp extends ConsumerWidget {
     // ngeliat data female (karena rules `isLinkedPartnerOf` cuma cek dari sisi
     // male). Auto-heal ini ngebersihin male.partnerUid begitu dia detect
     // female sudah revoke (partnerCode null) atau profile-nya sudah hilang.
-    ref.listen<AsyncValue<UserProfile?>>(profileProvider, (_, next) {
+    ref.listen<AsyncValue<UserProfile?>>(profileProvider, (prev, next) {
       next.whenData((partnerProfile) {
         final ownProfile = ref.read(ownProfileProvider).value;
         if (ownProfile == null) return;
@@ -34,12 +34,27 @@ class ValinaApp extends ConsumerWidget {
         final partnerUid = ownProfile.partnerUid;
         if (partnerUid == null || partnerUid.isEmpty) return;
 
-        // Stale kalau profile partner ga ada / partnerCode-nya null/empty.
+        // Stale HANYA kalau profile partner sudah ter-load tapi partnerCode-nya
+        // null/empty (= female sudah revoke). Kalau partnerProfile == null,
+        // kemungkinan besar Firestore cross-user read belum selesai (race
+        // condition saat fresh login) — JANGAN clear partnerUid, tunggu emit
+        // berikutnya.
+        if (partnerProfile == null) return;
         final stale =
-            partnerProfile == null ||
             partnerProfile.partnerCode == null ||
             partnerProfile.partnerCode!.isEmpty;
         if (!stale) return;
+
+        // Hanya auto-heal kalau sebelumnya SUDAH pernah ada data valid
+        // (= transisi dari punya partnerCode ke tidak punya). Kalau ini
+        // emit pertama (prev == null atau prev.isLoading), skip — hindari
+        // false positive saat fresh login / clear app data.
+        final prevProfile = prev?.value;
+        if (prevProfile == null) return;
+        final prevHadCode =
+            prevProfile.partnerCode != null &&
+            prevProfile.partnerCode!.isNotEmpty;
+        if (!prevHadCode) return;
 
         // Fire-and-forget: clear partnerUid. Router redirect akan ngarahin
         // ke /onboarding (relink mode).

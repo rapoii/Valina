@@ -109,6 +109,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: AppColors.bgPrimary,
       child: SafeArea(
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

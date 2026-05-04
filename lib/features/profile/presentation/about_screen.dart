@@ -27,14 +27,6 @@ class AboutScreen extends StatelessWidget {
                 width: 96,
                 height: 96,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.accentSoft,
-                      AppColors.accentPrimary.withValues(alpha: 0.7),
-                    ],
-                  ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -44,8 +36,12 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Text('🌸', style: TextStyle(fontSize: 48)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: Image.asset(
+                    'assets/images/logo-valina.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -74,50 +70,10 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.xxl),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.peach.withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    CupertinoIcons.exclamationmark_triangle,
-                    color: AppColors.warning,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Disclaimer kesehatan',
-                          style: AppTypography.subheadlineEmphasized,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Aplikasi ini bukan alat diagnosis medis dan tidak dapat '
-                          'diandalkan sebagai metode kontrasepsi. Konsultasikan '
-                          'masalah kesehatan kamu kepada tenaga medis profesional.',
-                          style: AppTypography.footnote.copyWith(
-                            color: AppColors.labelPrimary,
-                            height: 1.45,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
             Text('Kredit', style: AppTypography.headline),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Dibuat dengan ❤ menggunakan Flutter, Riverpod, dan Firebase.\n'
+              'Dibuat oleh Rafi Permana dengan ❤ menggunakan Flutter, Riverpod, dan Firebase.\n'
               'Tipografi: SF Pro (iOS) / Inter (Android).\n'
               'Ikon: SF Symbols / CupertinoIcons.',
               style: AppTypography.subheadline.copyWith(

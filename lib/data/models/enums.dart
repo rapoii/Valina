@@ -52,7 +52,10 @@ enum Discharge {
 enum SexualActivity {
   none('Tidak ada'),
   protected('Dengan pengaman'),
-  unprotected('Tanpa pengaman');
+  unprotected('Tanpa pengaman'),
+  oral('Seks oral'),
+  anal('Seks anal'),
+  masturbation('Masturbasi');
 
   const SexualActivity(this.label);
   final String label;

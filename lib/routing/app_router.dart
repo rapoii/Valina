@@ -6,6 +6,9 @@ import '../core/providers.dart';
 import '../data/models/enums.dart';
 import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/login_screen.dart';
+import '../features/splash/presentation/splash_screen.dart';
+import '../features/chat/presentation/chat_detail_screen.dart';
+import '../features/chat/presentation/chat_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
 import '../features/calendar/presentation/calendar_screen.dart';
 import '../features/insights/presentation/article_detail_screen.dart';
@@ -20,12 +23,14 @@ import 'main_shell.dart';
 
 /// Route names untuk navigasi yang aman.
 abstract final class AppRoute {
+  static const splash = '/splash';
   static const login = '/login';
   static const signup = '/signup';
   static const onboarding = '/onboarding';
   static const today = '/today';
   static const calendar = '/calendar';
   static const insights = '/insights';
+  static const chat = '/chat';
   static const profile = '/profile';
 
   static const articleDetail = 'article-detail';
@@ -45,7 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.listen(ownProfileProvider, (_, _) => notifier.notify());
 
   return GoRouter(
-    initialLocation: AppRoute.today,
+    initialLocation: AppRoute.splash,
     refreshListenable: notifier,
     redirect: (context, state) {
       final authValue = ref.read(authStateProvider);
@@ -54,7 +59,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final user = authValue.value;
       final loggedIn = user != null;
       final loc = state.matchedLocation;
+      final atSplash = loc == AppRoute.splash;
       final atLogin = loc == AppRoute.login || loc == AppRoute.signup;
+
+      // Splash screen — jangan redirect, biarkan animasi selesai.
+      if (atSplash) return null;
 
       // Belum login — paksa ke /login (kecuali sudah di halaman auth).
       if (!loggedIn) {
@@ -104,6 +113,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: AppRoute.splash,
+        pageBuilder: (context, state) =>
+            const CupertinoPage<void>(child: SplashScreen()),
+      ),
       GoRoute(
         path: AppRoute.login,
         pageBuilder: (context, state) =>
@@ -155,6 +169,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       final id = state.pathParameters['id']!;
                       return CupertinoPage<void>(
                         child: ArticleDetailScreen(articleId: id),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoute.chat,
+                pageBuilder: (context, state) =>
+                    const CupertinoPage<void>(child: ChatScreen()),
+                routes: [
+                  GoRoute(
+                    path: ':sessionId',
+                    pageBuilder: (context, state) {
+                      final sessionId = state.pathParameters['sessionId']!;
+                      return CupertinoPage<void>(
+                        child: ChatDetailScreen(sessionId: sessionId),
                       );
                     },
                   ),

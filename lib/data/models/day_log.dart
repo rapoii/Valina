@@ -12,21 +12,22 @@ class DayLog {
     List<Mood>? moods,
     List<Symptom>? symptoms,
     this.discharge,
-    this.sexualActivity,
+    List<SexualActivity>? sexualActivities,
     this.bbt,
     this.weight,
     this.sleepHours,
     this.waterIntakeGlasses,
     this.notes,
   }) : moods = moods ?? <Mood>[],
-       symptoms = symptoms ?? <Symptom>[];
+       symptoms = symptoms ?? <Symptom>[],
+       sexualActivities = sexualActivities ?? <SexualActivity>[];
 
   DateTime date;
   FlowIntensity? flowIntensity;
   List<Mood> moods;
   List<Symptom> symptoms;
   Discharge? discharge;
-  SexualActivity? sexualActivity;
+  List<SexualActivity> sexualActivities;
 
   /// Basal Body Temperature (Celsius).
   double? bbt;
@@ -40,7 +41,7 @@ class DayLog {
       moods.isNotEmpty ||
       symptoms.isNotEmpty ||
       discharge != null ||
-      sexualActivity != null ||
+      sexualActivities.isNotEmpty ||
       bbt != null ||
       weight != null ||
       sleepHours != null ||
@@ -62,7 +63,7 @@ class DayLog {
     'moods': moods.map((m) => m.name).toList(),
     'symptoms': symptoms.map((s) => s.name).toList(),
     'discharge': discharge?.name,
-    'sexualActivity': sexualActivity?.name,
+    'sexualActivities': sexualActivities.map((s) => s.name).toList(),
     'bbt': bbt,
     'weight': weight,
     'sleepHours': sleepHours,
@@ -80,9 +81,9 @@ class DayLog {
       moods: _enumList(Mood.values, map['moods']),
       symptoms: _enumList(Symptom.values, map['symptoms']),
       discharge: enumFromName(Discharge.values, map['discharge'] as String?),
-      sexualActivity: enumFromName(
+      sexualActivities: _enumList(
         SexualActivity.values,
-        map['sexualActivity'] as String?,
+        map['sexualActivities'],
       ),
       bbt: (map['bbt'] as num?)?.toDouble(),
       weight: (map['weight'] as num?)?.toDouble(),

@@ -21,14 +21,6 @@ class WelcomeStep extends StatelessWidget {
             width: 140,
             height: 140,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.accentSoft,
-                  AppColors.accentPrimary.withValues(alpha: 0.6),
-                ],
-              ),
               borderRadius: BorderRadius.circular(AppRadius.xl),
               boxShadow: [
                 BoxShadow(
@@ -38,8 +30,12 @@ class WelcomeStep extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Center(
-              child: Text('🌸', style: TextStyle(fontSize: 72)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              child: Image.asset(
+                'assets/images/logo-valina.png',
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xxxl),
@@ -52,8 +48,10 @@ class WelcomeStep extends StatelessWidget {
           Text(
             'Pelacak siklus & kesehatan reproduksimu — '
             'dirancang lembut, privat, dan mudah dipahami.',
-            style: AppTypography.body
-                .copyWith(color: AppColors.labelSecondary, height: 1.4),
+            style: AppTypography.body.copyWith(
+              color: AppColors.labelSecondary,
+              height: 1.4,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xxxl),
@@ -100,9 +98,7 @@ class _FeatureBullet extends StatelessWidget {
           child: Icon(icon, color: AppColors.accentPrimary, size: 18),
         ),
         const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Text(text, style: AppTypography.callout),
-        ),
+        Expanded(child: Text(text, style: AppTypography.callout)),
       ],
     );
   }

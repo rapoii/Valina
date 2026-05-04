@@ -59,7 +59,6 @@ class PartnerMaleSection extends ConsumerWidget {
         ? partnerName[0].toUpperCase()
         : '?';
     final notFound = partnerProfile == null;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -87,27 +86,30 @@ class PartnerMaleSection extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: notFound
-                              ? [AppColors.error, AppColors.peach]
-                              : [
-                                  AppColors.accentSoft,
-                                  AppColors.accentPrimary.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ],
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: notFound
+                                ? [AppColors.error, AppColors.peach]
+                                : [
+                                    AppColors.accentSoft,
+                                    AppColors.accentPrimary.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Center(
-                        child: Text(
-                          notFound ? '!' : partnerInitial,
-                          style: AppTypography.title2.copyWith(
-                            color: CupertinoColors.white,
+                        child: Center(
+                          child: Text(
+                            notFound ? '!' : partnerInitial,
+                            style: AppTypography.title2.copyWith(
+                              color: CupertinoColors.white,
+                            ),
                           ),
                         ),
                       ),

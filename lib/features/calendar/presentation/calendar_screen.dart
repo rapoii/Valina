@@ -11,28 +11,27 @@ import '../../../core/utils/date_x.dart';
 import '../../../core/utils/insights_helper.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../data/models/day_log.dart';
+import '../../../data/models/enums.dart';
 import '../../logging/presentation/log_sheet.dart';
 import 'widgets/cycle_month_view.dart';
 
 /// Provider untuk pre-compute semua forecast dalam satu bulan.
-/// Mengurangi rebuild dan menghindari multiple provider instances.
+/// Menggunakan computeForMonth untuk sort sekali + reuse — hindari
+/// 28-31x redundant sort di CycleCalculator.compute().
+/// Enhanced dengan BBT, discharge, dan symptom patterns.
 final _monthForecastsProvider =
     Provider.family<Map<DateTime, CycleForecast>, DateTime>((ref, month) {
       final cycles = ref.watch(cyclesProvider).value ?? const [];
       final profile = ref.watch(profileProvider).value;
-      final lastOfMonth = DateTime(month.year, month.month + 1, 0);
+      final logs = ref.watch(allLogsProvider).value ?? const [];
 
-      final forecasts = <DateTime, CycleForecast>{};
-      for (var day = 1; day <= lastOfMonth.day; day++) {
-        final date = DateTime(month.year, month.month, day).dateOnly;
-        forecasts[date] = CycleCalculator.compute(
-          cycles: cycles,
-          fallbackCycleLength: profile?.avgCycleLength ?? 28,
-          fallbackPeriodLength: profile?.avgPeriodLength ?? 5,
-          today: date,
-        );
-      }
-      return forecasts;
+      return CycleCalculator.computeForMonth(
+        cycles: cycles,
+        fallbackCycleLength: profile?.avgCycleLength ?? 28,
+        fallbackPeriodLength: profile?.avgPeriodLength ?? 5,
+        month: month,
+        logs: logs,
+      );
     });
 
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -219,6 +218,8 @@ class _DayDetail extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(DateFormatter.fullDay(date), style: AppTypography.title3),
+            const SizedBox(height: AppSpacing.sm),
+            _PregnancyChanceBadge(forecast: forecast),
             const SizedBox(height: AppSpacing.md),
             if (!showLogContent)
               Text(
@@ -231,8 +232,9 @@ class _DayDetail extends ConsumerWidget {
               _EmptyDayDetail(date: date)
             else
               _PopulatedDayDetail(log: log, hideNotes: !canViewNotes),
-            // Tombol edit hanya muncul kalau user write-capable (female).
-            if (!isReadOnly) ...[
+            // Tombol edit hanya muncul kalau user write-capable (female)
+            // DAN tanggal bukan masa depan (tidak bisa catat hari yang belum terjadi).
+            if (!isReadOnly && !date.isAfter(DateTime.now().dateOnly)) ...[
               const SizedBox(height: AppSpacing.md),
               CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -261,6 +263,35 @@ class _DayDetail extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PregnancyChanceBadge extends StatelessWidget {
+  const _PregnancyChanceBadge({required this.forecast});
+  final CycleForecast forecast;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = forecast.pregnancyChanceLabel;
+    final pct = (forecast.pregnancyChance * 100).round();
+    final color = switch (label) {
+      'Sangat Tinggi' => const Color(0xFF2ECC71),
+      'Tinggi' => const Color(0xFF27AE60),
+      'Sedang' => AppColors.peach,
+      'Rendah' => AppColors.labelSecondary,
+      _ => AppColors.labelTertiary,
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(CupertinoIcons.waveform_path_ecg, size: 13, color: color),
+        const SizedBox(width: 4),
+        Text(
+          'Peluang hamil: $label (~$pct%)',
+          style: AppTypography.caption1.copyWith(color: color),
+        ),
+      ],
     );
   }
 }
@@ -315,6 +346,17 @@ class _PopulatedDayDetail extends StatelessWidget {
             label: 'Discharge',
             value: log.discharge!.label,
             color: AppColors.mint,
+          ),
+        if (log.sexualActivities
+            .where((s) => s != SexualActivity.none)
+            .isNotEmpty)
+          _Row(
+            label: 'Seksual',
+            value: log.sexualActivities
+                .where((s) => s != SexualActivity.none)
+                .map((s) => s.label)
+                .join(', '),
+            color: AppColors.lavender,
           ),
         if (!hideNotes && log.notes != null && log.notes!.trim().isNotEmpty)
           _Row(

@@ -139,14 +139,17 @@ final bookmarksProvider = StreamProvider<Set<String>>((ref) {
 });
 
 /// Forecast siklus untuk hari ini (re-compute saat data berubah).
+/// Enhanced dengan BBT, discharge, dan symptom patterns untuk akurasi maksimum.
 final todayForecastProvider = Provider<CycleForecast>((ref) {
   final cycles = ref.watch(cyclesProvider).value ?? const [];
   final profile = ref.watch(profileProvider).value;
+  final logs = ref.watch(allLogsProvider).value ?? const [];
   return CycleCalculator.compute(
     cycles: cycles,
     fallbackCycleLength: profile?.avgCycleLength ?? 28,
     fallbackPeriodLength: profile?.avgPeriodLength ?? 5,
     today: DateTime.now().dateOnly,
+    logs: logs,
   );
 });
 
@@ -155,6 +158,7 @@ final forecastForDateProvider = Provider.autoDispose
     .family<CycleForecast, DateTime>((ref, date) {
       final cycles = ref.watch(cyclesProvider).value ?? const [];
       final profile = ref.watch(profileProvider).value;
+      final logs = ref.watch(allLogsProvider).value ?? const [];
       // keepAlive memastikan provider tetap hidup selama data tidak berubah
       ref.keepAlive();
       return CycleCalculator.compute(
@@ -162,6 +166,7 @@ final forecastForDateProvider = Provider.autoDispose
         fallbackCycleLength: profile?.avgCycleLength ?? 28,
         fallbackPeriodLength: profile?.avgPeriodLength ?? 5,
         today: date.dateOnly,
+        logs: logs,
       );
     });
 

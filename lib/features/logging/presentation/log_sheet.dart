@@ -58,10 +58,13 @@ class _LogSheetState extends ConsumerState<LogSheet> {
   }
 
   Future<void> _save() async {
-    // Defense-in-depth: male tidak boleh save log harian. UI di Today/Calendar
-    // sudah hide tombol edit, tapi kalau ada deeplink atau bug routing, ini
-    // mencegah write yang akan ditolak Firestore rules.
+    // Defense-in-depth: male tidak boleh save log harian.
     if (ref.read(isReadOnlyProvider)) {
+      Navigator.of(context).pop();
+      return;
+    }
+    // Defense-in-depth: tidak boleh menyimpan log untuk tanggal masa depan.
+    if (widget.date.isAfter(DateTime.now().dateOnly)) {
       Navigator.of(context).pop();
       return;
     }
@@ -71,9 +74,11 @@ class _LogSheetState extends ConsumerState<LogSheet> {
         : _notesController.text.trim();
     await ref.read(logRepositoryProvider).save(_log);
 
-    // Bila flow diatur, sinkronkan dengan record cycle.
+    // Sinkronkan cycle: buat saat flow diisi, hapus (jika auto-1hari) saat flow dikosongkan.
     if (_log.flowIntensity != null) {
       await _syncCycleForLog();
+    } else {
+      await _removeSingleDayCycleForLog();
     }
 
     if (!mounted) return;
@@ -93,6 +98,23 @@ class _LogSheetState extends ConsumerState<LogSheet> {
       endDate: widget.date.dateOnly,
     );
     await cycleRepo.update(cycle);
+  }
+
+  /// Hapus cycle auto-1hari bila flow dikosongkan.
+  /// Hanya hapus kalau cycle itu tepat 1 hari dan tanggalnya sama persis
+  /// (menghindari menghapus cycle multi-hari yang dikonfigurasi manual).
+  Future<void> _removeSingleDayCycleForLog() async {
+    final cycleRepo = ref.read(cycleRepositoryProvider);
+    final cycles = ref.read(cyclesProvider).value ?? const <Cycle>[];
+    final existing = CycleRepository.findByDateIn(cycles, widget.date);
+    if (existing == null) return;
+    final start = existing.startDate.dateOnly;
+    final end = (existing.endDate ?? existing.startDate).dateOnly;
+    // Hanya hapus kalau ini siklus 1 hari persis di tanggal ini.
+    if (start.isSameDate(widget.date.dateOnly) &&
+        end.isSameDate(widget.date.dateOnly)) {
+      await cycleRepo.delete(existing.id);
+    }
   }
 
   @override
@@ -241,22 +263,23 @@ class _LogSheetState extends ConsumerState<LogSheet> {
   Widget _buildSexualActivity() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final s in SexualActivity.values)
-            _SimpleChip(
-              label: s.label,
-              selected: _log.sexualActivity == s,
-              onTap: () {
-                Haptics.selection();
-                setState(() {
-                  _log.sexualActivity = _log.sexualActivity == s ? null : s;
-                });
-              },
-            ),
-        ],
+      child: ChipGrid<SexualActivity>(
+        options: SexualActivity.values
+            .where((s) => s != SexualActivity.none)
+            .toList(),
+        selected: _log.sexualActivities.toSet(),
+        labelOf: (s) => s.label,
+        emojiOf: (s) => _sexualActivityEmoji(s),
+        onToggle: (s) {
+          HapticFeedback.selectionClick();
+          setState(() {
+            if (_log.sexualActivities.contains(s)) {
+              _log.sexualActivities.remove(s);
+            } else {
+              _log.sexualActivities.add(s);
+            }
+          });
+        },
       ),
     );
   }
@@ -282,6 +305,15 @@ class _LogSheetState extends ConsumerState<LogSheet> {
     Symptom.nausea => '🤢',
     Symptom.cravings => '🍫',
     Symptom.insomnia => '🌙',
+  };
+
+  String _sexualActivityEmoji(SexualActivity s) => switch (s) {
+    SexualActivity.none => '🚫',
+    SexualActivity.protected => '🛡️',
+    SexualActivity.unprotected => '🔓',
+    SexualActivity.oral => '💋',
+    SexualActivity.anal => '🍑',
+    SexualActivity.masturbation => '✋',
   };
 }
 

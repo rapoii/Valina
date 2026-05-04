@@ -37,7 +37,11 @@ class GoogleSignInButton extends StatelessWidget {
           if (loading)
             const CupertinoActivityIndicator(radius: 9)
           else ...[
-            const _GoogleLogo(),
+            Image.asset(
+              'assets/images/google-color.png',
+              width: 22,
+              height: 22,
+            ),
             const SizedBox(width: 12),
             Text(
               label,
@@ -47,41 +51,6 @@ class GoogleSignInButton extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-/// Logo "G" Google sederhana yang bersih tanpa asset eksternal.
-class _GoogleLogo extends StatelessWidget {
-  const _GoogleLogo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF4285F4), // Blue
-            Color(0xFF34A853), // Green
-            Color(0xFFFBBC05), // Yellow
-            Color(0xFFEA4335), // Red
-          ],
-          stops: [0.0, 0.33, 0.66, 1.0],
-        ),
-      ),
-      alignment: Alignment.center,
-      child: const Text(
-        'G',
-        style: TextStyle(
-          color: CupertinoColors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          height: 1.0,
-        ),
       ),
     );
   }

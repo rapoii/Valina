@@ -46,6 +46,7 @@ class _BlurredTabBar extends StatelessWidget {
     (CupertinoIcons.heart_circle_fill, CupertinoIcons.heart_circle, 'Hari Ini'),
     (CupertinoIcons.calendar, CupertinoIcons.calendar, 'Kalender'),
     (CupertinoIcons.chart_bar_fill, CupertinoIcons.chart_bar, 'Wawasan'),
+    (CupertinoIcons.chat_bubble_2_fill, CupertinoIcons.chat_bubble_2, 'Chat'),
     (
       CupertinoIcons.person_crop_circle_fill,
       CupertinoIcons.person_crop_circle,

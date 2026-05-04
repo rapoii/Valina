@@ -6,7 +6,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/cycle_calculator.dart';
 import '../../../../core/utils/date_x.dart';
-import '../../../../core/utils/insights_helper.dart';
 import '../../../../data/models/cycle.dart';
 import '../../../../data/models/day_log.dart';
 import '../../../../data/models/enums.dart';
@@ -40,6 +39,13 @@ class CycleMonthView extends StatelessWidget {
     final totalDays = lastOfMonth.day;
     final cells = leadingEmpty + totalDays;
     final rows = (cells / 7).ceil();
+
+    // Cache DateTime.now() sekali per build — hindari 35+ call di _DayCell.
+    final today = DateTime.now().dateOnly;
+
+    // Precompute Sets untuk O(1) lookup — hindari O(n²) linear scan per cell.
+    final periodDates = _computePeriodDates(cycles);
+    final activityDates = _computeActivityDates(logs);
 
     return RepaintBoundary(
       child: Column(
@@ -76,9 +82,10 @@ class CycleMonthView extends StatelessWidget {
                       child: RepaintBoundary(
                         child: _DayCell(
                           date: date,
+                          today: today,
                           selected: dateOnly.isSameDate(selectedDate),
-                          isInActualPeriod: _isInActualPeriod(dateOnly),
-                          hasLog: _hasLog(dateOnly),
+                          isInActualPeriod: periodDates.contains(dateOnly),
+                          hasSexualActivity: activityDates.contains(dateOnly),
                           forecast:
                               forecasts[dateOnly] ?? _defaultForecast(dateOnly),
                           onTap: () {
@@ -111,22 +118,32 @@ class CycleMonthView extends StatelessWidget {
     fertileWindowEnd: date.add(const Duration(days: 14)),
     regularityScore: 0.5,
     usingHistoricalAverage: false,
+    pregnancyChance: 0.01,
   );
 
-  bool _isInActualPeriod(DateTime date) {
+  /// Precompute `Set<DateTime>` untuk O(1) lookup — hindari O(n²) scan per cell.
+  static Set<DateTime> _computePeriodDates(List<Cycle> cycles) {
+    final result = <DateTime>{};
     for (final c in cycles) {
       final start = c.startDate.dateOnly;
       final end = (c.endDate ?? c.startDate).dateOnly;
-      if ((date.isAfter(start) || date.isSameDate(start)) &&
-          (date.isBefore(end) || date.isSameDate(end))) {
-        return true;
+      var current = start;
+      while (!current.isAfter(end)) {
+        result.add(current);
+        current = current.add(const Duration(days: 1));
       }
     }
-    return false;
+    return result;
   }
 
-  bool _hasLog(DateTime date) {
-    return logs.any((l) => l.date.isSameDate(date) && l.hasAnyData);
+  static Set<DateTime> _computeActivityDates(List<DayLog> logs) {
+    final result = <DateTime>{};
+    for (final l in logs) {
+      if (l.sexualActivities.any((s) => s != SexualActivity.none)) {
+        result.add(l.date.dateOnly);
+      }
+    }
+    return result;
   }
 }
 
@@ -153,34 +170,33 @@ class _DayLabel extends StatelessWidget {
 class _DayCell extends StatelessWidget {
   const _DayCell({
     required this.date,
+    required this.today,
     required this.selected,
     required this.isInActualPeriod,
-    required this.hasLog,
+    required this.hasSexualActivity,
     required this.forecast,
     required this.onTap,
   });
 
   final DateTime date;
+  final DateTime today;
   final bool selected;
   final bool isInActualPeriod;
-  final bool hasLog;
+  final bool hasSexualActivity;
   final CycleForecast forecast;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now().dateOnly;
     final isToday = date.isSameDate(today);
     final isFuture = date.isAfter(today);
     final phase = forecast.phase;
-    final phaseColor = AppColors.phaseColor(
-      InsightsHelper.phaseColorEnum(phase),
-    );
 
     final isPredictedPeriod =
         isFuture && phase == CyclePhase.menstrual && !isInActualPeriod;
-    final isFertile = forecast.isInFertileWindow;
-    final isOvulation = phase == CyclePhase.ovulation;
+    final isOvulation = forecast.isPeakOvulation && !isInActualPeriod;
+    final isFertileOnly =
+        forecast.isInFertileWindow && !isInActualPeriod && !isOvulation;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -190,20 +206,14 @@ class _DayCell extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (isFertile && !isInActualPeriod && !isPredictedPeriod)
-              _buildFertileBackground(),
+            if (isFertileOnly && !isPredictedPeriod) _buildFertileBackground(),
+            if (isOvulation && !isPredictedPeriod) _buildOvulationBackground(),
             if (isInActualPeriod)
               _buildPeriodBackground()
             else if (isPredictedPeriod)
               _buildPredictedBackground(),
             if (selected) _buildSelectedBorder(),
-            _buildContent(
-              isToday,
-              isInActualPeriod,
-              phaseColor,
-              hasLog,
-              isOvulation,
-            ),
+            _buildContent(isToday, isInActualPeriod),
           ],
         ),
       ),
@@ -215,6 +225,15 @@ class _DayCell extends StatelessWidget {
     height: 40,
     decoration: BoxDecoration(
       color: AppColors.lavender.withValues(alpha: 0.18),
+      shape: BoxShape.circle,
+    ),
+  );
+
+  Widget _buildOvulationBackground() => Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: AppColors.lavender.withValues(alpha: 0.55),
       shape: BoxShape.circle,
     ),
   );
@@ -249,13 +268,7 @@ class _DayCell extends StatelessWidget {
     ),
   );
 
-  Widget _buildContent(
-    bool isToday,
-    bool isInActualPeriod,
-    Color phaseColor,
-    bool hasLog,
-    bool isOvulation,
-  ) {
+  Widget _buildContent(bool isToday, bool isInActualPeriod) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -271,30 +284,22 @@ class _DayCell extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        _Dot(
-          color: hasLog
-              ? phaseColor
-              : isOvulation
-              ? AppColors.lavender
-              : null,
-        ),
+        _LoveIndicator(visible: hasSexualActivity),
       ],
     );
   }
 }
 
-class _Dot extends StatelessWidget {
-  const _Dot({this.color});
-  final Color? color;
+class _LoveIndicator extends StatelessWidget {
+  const _LoveIndicator({required this.visible});
+  final bool visible;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 4,
-      height: 4,
-      decoration: BoxDecoration(
-        color: color ?? const Color(0x00000000),
-        shape: BoxShape.circle,
-      ),
+    return SizedBox(
+      height: 8,
+      child: visible
+          ? const Text('❤', style: TextStyle(fontSize: 7, height: 1))
+          : const SizedBox.shrink(),
     );
   }
 }
@@ -318,8 +323,12 @@ class CalendarLegend extends StatelessWidget {
             outlined: true,
           ),
           _LegendItem(
-            color: AppColors.lavender.withValues(alpha: 0.6),
-            label: 'Fertile',
+            color: AppColors.lavender.withValues(alpha: 0.55),
+            label: 'Ovulasi',
+          ),
+          _LegendItem(
+            color: AppColors.lavender.withValues(alpha: 0.18),
+            label: 'Masa subur',
           ),
         ],
       ),

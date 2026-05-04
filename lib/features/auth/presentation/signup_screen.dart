@@ -54,10 +54,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     setState(() => _loadingEmail = true);
     try {
-      await ref.read(authRepositoryProvider).signUpWithEmail(
-            email: email,
-            password: password,
-          );
+      await ref
+          .read(authRepositoryProvider)
+          .signUpWithEmail(email: email, password: password);
       // Navigation otomatis lewat router redirect ke onboarding.
     } on AuthFailure catch (e) {
       _showAlert('Pendaftaran gagal', e.message);
@@ -114,6 +113,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       ),
       child: SafeArea(
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,8 +188,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                   CupertinoButton(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    onPressed:
-                        loadingAny ? null : () => context.go(AppRoute.login),
+                    onPressed: loadingAny
+                        ? null
+                        : () => context.go(AppRoute.login),
                     child: Text(
                       'Masuk',
                       style: AppTypography.subheadline.copyWith(

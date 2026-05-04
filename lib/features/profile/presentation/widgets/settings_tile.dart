@@ -26,8 +26,7 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelColor =
-        destructive ? AppColors.error : AppColors.labelPrimary;
+    final labelColor = destructive ? AppColors.error : AppColors.labelPrimary;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -55,8 +54,9 @@ class SettingsTile extends StatelessWidget {
             if (value != null) ...[
               Text(
                 value!,
-                style: AppTypography.body
-                    .copyWith(color: AppColors.labelSecondary),
+                style: AppTypography.body.copyWith(
+                  color: AppColors.labelSecondary,
+                ),
               ),
               const SizedBox(width: 6),
             ],
@@ -131,8 +131,9 @@ class SettingsSection extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(36, 8, 20, 0),
             child: Text(
               footer!,
-              style: AppTypography.caption1
-                  .copyWith(color: AppColors.labelSecondary),
+              style: AppTypography.caption1.copyWith(
+                color: AppColors.labelSecondary,
+              ),
             ),
           ),
       ],

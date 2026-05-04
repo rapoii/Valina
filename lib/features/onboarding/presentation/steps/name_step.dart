@@ -6,11 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import 'step_scaffold.dart';
 
 class NameStep extends StatefulWidget {
-  const NameStep({
-    super.key,
-    required this.initial,
-    required this.onChanged,
-  });
+  const NameStep({super.key, required this.initial, required this.onChanged});
 
   final String initial;
   final ValueChanged<String> onChanged;
@@ -43,7 +39,7 @@ class _NameStepState extends State<NameStep> {
       child: CupertinoTextField(
         controller: _controller,
         autofocus: true,
-        placeholder: 'Misal: Aira',
+        placeholder: 'Misal: Vaniola',
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         style: AppTypography.title3,
         decoration: BoxDecoration(

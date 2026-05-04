@@ -17,7 +17,6 @@ class CycleSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _CycleSettingsScreenState extends ConsumerState<CycleSettingsScreen> {
-  late final TextEditingController _nameController;
   int _cycleLength = 28;
   int _periodLength = 5;
 
@@ -27,15 +26,8 @@ class _CycleSettingsScreenState extends ConsumerState<CycleSettingsScreen> {
     // Cycle settings selalu edit own profile (female only — male tidak boleh
     // sampai sini, sudah di-redirect oleh router).
     final profile = ref.read(ownProfileProvider).value;
-    _nameController = TextEditingController(text: profile?.name ?? '');
     _cycleLength = profile?.avgCycleLength ?? 28;
     _periodLength = profile?.avgPeriodLength ?? 5;
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
   }
 
   Future<void> _save() async {
@@ -44,7 +36,6 @@ class _CycleSettingsScreenState extends ConsumerState<CycleSettingsScreen> {
     final current =
         ref.read(ownProfileProvider).value ?? UserProfile(name: 'Sahabat');
     final updated = current.copyWith(
-      name: _nameController.text.trim(),
       avgCycleLength: _cycleLength,
       avgPeriodLength: _periodLength,
     );
@@ -140,25 +131,6 @@ class _CycleSettingsScreenState extends ConsumerState<CycleSettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            Text(
-              'Nama panggilan',
-              style: AppTypography.footnoteEmphasized.copyWith(
-                color: AppColors.labelSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            CupertinoTextField(
-              controller: _nameController,
-              placeholder: 'Nama panggilanmu',
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              style: AppTypography.body,
-              decoration: BoxDecoration(
-                color: AppColors.bgElevated,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                border: Border.all(color: AppColors.separator, width: 0.5),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
             Text(
               'Siklus & haid',
               style: AppTypography.footnoteEmphasized.copyWith(

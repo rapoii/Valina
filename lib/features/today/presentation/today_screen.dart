@@ -26,13 +26,17 @@ class TodayScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref) {
-    final ownProfile = ref.watch(ownProfileProvider).value;
+    final ownProfileAsync = ref.watch(ownProfileProvider);
+    final ownProfile = ownProfileAsync.value;
     // Untuk male, `profileProvider` returnable profile pasangan (cewek).
     // Untuk female, sama dengan ownProfile.
     final effectiveProfile = ref.watch(profileProvider).value;
+    final cyclesAsync = ref.watch(cyclesProvider);
     final forecast = ref.watch(todayForecastProvider);
-    final todayLog = ref.watch(logForDateProvider(DateTime.now())).value;
+    final todayLogAsync = ref.watch(logForDateProvider(DateTime.now()));
+    final todayLog = todayLogAsync.value;
     final insight = InsightsHelper.forForecast(forecast);
+    final cyclesReady = !cyclesAsync.isLoading;
     final isReadOnly = ref.watch(isReadOnlyProvider);
     final canViewLogs = ref.watch(canViewLogsProvider);
 
@@ -41,6 +45,11 @@ class TodayScreen extends ConsumerWidget {
     final headerName = ownProfile == null
         ? 'Hari Ini'
         : 'Halo, ${ownProfile.name.split(' ').first}';
+
+    // Tunggu profile + cycles selesai load — hindari glitch fallback data.
+    // todayLog tidak ikut dicek: provider-nya bisa lambat init, dan QuickLogRow
+    // sudah handle null dengan baik (tidak nampilkan apa-apa saat belum ada log).
+    final allReady = ownProfileAsync.valueOrNull != null && cyclesReady;
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.bgGrouped,
@@ -65,26 +74,32 @@ class TodayScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                if (isReadOnly)
-                  _PartnerBanner(partnerName: effectiveProfile?.name),
-                RepaintBoundary(child: CycleStatusCard(forecast: forecast)),
-                const SizedBox(height: AppSpacing.xl),
-                RepaintBoundary(child: InsightCard(insight: insight)),
-                // Quick log hanya untuk female. Male: read-only, dan kalau
-                // canViewLogs true bisa lihat log harian sebagai info.
-                if (!isReadOnly) ...[
-                  const SectionHeader(title: 'Catat hari ini'),
-                  if (todayLog != null)
-                    QuickLogRow(
-                      todayLog: todayLog,
-                      onTap: () => LogSheet.show(context, DateTime.now()),
-                    ),
-                ] else if (canViewLogs && todayLog != null) ...[
-                  const SectionHeader(title: 'Catatan pasangan hari ini'),
-                  QuickLogRow(todayLog: todayLog, onTap: null),
-                ],
-                const SizedBox(height: AppSpacing.xxl),
-                RepaintBoundary(child: _ForecastTimeline(forecast: forecast)),
+                if (allReady) ...[
+                  if (isReadOnly)
+                    _PartnerBanner(partnerName: effectiveProfile?.name),
+                  RepaintBoundary(child: CycleStatusCard(forecast: forecast)),
+                  const SizedBox(height: AppSpacing.xl),
+                  RepaintBoundary(child: InsightCard(insight: insight)),
+                  // Quick log hanya untuk female. Male: read-only, dan kalau
+                  // canViewLogs true bisa lihat log harian sebagai info.
+                  if (!isReadOnly) ...[
+                    const SectionHeader(title: 'Catat hari ini'),
+                    if (todayLog != null)
+                      QuickLogRow(
+                        todayLog: todayLog,
+                        onTap: () => LogSheet.show(context, DateTime.now()),
+                      ),
+                  ] else if (canViewLogs && todayLog != null) ...[
+                    const SectionHeader(title: 'Catatan pasangan hari ini'),
+                    QuickLogRow(todayLog: todayLog, onTap: null),
+                  ],
+                  const SizedBox(height: AppSpacing.xxl),
+                  RepaintBoundary(child: _ForecastTimeline(forecast: forecast)),
+                ] else
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 80),
+                    child: Center(child: CupertinoActivityIndicator()),
+                  ),
               ]),
             ),
           ),
@@ -173,13 +188,64 @@ class _ForecastTimeline extends StatelessWidget {
             _TimelineRow(
               icon: CupertinoIcons.heart_fill,
               color: AppColors.peach,
-              label: 'Fertile window',
+              label: 'Masa subur',
               date: forecast.fertileWindowStart,
               endDate: forecast.fertileWindowEnd,
             ),
+            const SizedBox(height: AppSpacing.md),
+            _PregnancyChanceRow(forecast: forecast),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PregnancyChanceRow extends StatelessWidget {
+  const _PregnancyChanceRow({required this.forecast});
+  final CycleForecast forecast;
+
+  @override
+  Widget build(BuildContext context) {
+    final chance = forecast.pregnancyChance;
+    final label = forecast.pregnancyChanceLabel;
+    final color = switch (label) {
+      'Sangat Tinggi' => const Color(0xFF2ECC71),
+      'Tinggi' => const Color(0xFF27AE60),
+      'Sedang' => AppColors.peach,
+      'Rendah' => AppColors.labelSecondary,
+      _ => AppColors.labelTertiary,
+    };
+    final pct = (chance * 100).round();
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: Icon(CupertinoIcons.waveform_path_ecg, color: color, size: 18),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Peluang kehamilan',
+                style: AppTypography.subheadlineEmphasized,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$label (~$pct%)',
+                style: AppTypography.footnote.copyWith(color: color),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

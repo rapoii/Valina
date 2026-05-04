@@ -7,11 +7,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 /// Menerjemahkan `FirebaseAuthException` ke `AuthFailure` dengan pesan
 /// bahasa Indonesia, supaya layer presentation tidak perlu peduli kode error.
 class AuthRepository {
-  AuthRepository({
-    FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+  AuthRepository({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
+    : _auth = firebaseAuth ?? FirebaseAuth.instance,
+      _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
@@ -103,6 +101,54 @@ class AuthRepository {
       await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       throw AuthFailure(_translate(e));
+    }
+  }
+
+  /// Hapus akun permanen. Memerlukan re-autentikasi terlebih dahulu.
+  /// [password] diisi untuk email user, null untuk Google user.
+  Future<void> deleteAccount({String? password}) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw const AuthFailure('Tidak ada user yang login.');
+
+      // Re-authenticate sesuai provider.
+      final providers = user.providerData.map((p) => p.providerId).toList();
+      if (providers.contains('google.com')) {
+        // Google: sign in ulang untuk dapat credential baru.
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          throw const AuthFailure('Re-autentikasi dibatalkan.');
+        }
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await user.reauthenticateWithCredential(credential);
+      } else {
+        // Email/password: pakai password yang diberikan.
+        if (password == null || password.isEmpty) {
+          throw const AuthFailure('Password diperlukan untuk menghapus akun.');
+        }
+        final credential = EmailAuthProvider.credential(
+          email: user.email!,
+          password: password,
+        );
+        await user.reauthenticateWithCredential(credential);
+      }
+
+      await user.delete();
+      if (!kIsWeb) {
+        try {
+          await _googleSignIn.signOut();
+        } catch (_) {}
+      }
+    } on FirebaseAuthException catch (e) {
+      throw AuthFailure(_translate(e));
+    } on AuthFailure {
+      rethrow;
+    } catch (e) {
+      throw AuthFailure('Hapus akun gagal: $e');
     }
   }
 

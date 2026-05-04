@@ -30,7 +30,7 @@ class ChipGrid<T> extends StatelessWidget {
         crossAxisCount: 4,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 0.92,
+        childAspectRatio: 0.78,
       ),
       itemCount: options.length,
       itemBuilder: (context, i) {
@@ -67,15 +67,14 @@ class _ChipItem extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
           color: selected
               ? AppColors.accentSoft.withValues(alpha: 0.55)
               : AppColors.bgElevated,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color:
-                selected ? AppColors.accentPrimary : AppColors.separator,
+            color: selected ? AppColors.accentPrimary : AppColors.separator,
             width: selected ? 1.2 : 0.5,
           ),
         ),
@@ -86,14 +85,14 @@ class _ChipItem extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               label,
-              maxLines: 1,
+              maxLines: 2,
+              textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.caption2.copyWith(
                 color: selected
                     ? AppColors.accentPressed
                     : AppColors.labelPrimary,
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ],
