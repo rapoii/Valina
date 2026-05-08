@@ -57,3 +57,6 @@ android/key.properties
 # API keys and secrets
 lib/core/constants/api_keys.dart
 **/api_keys.dart
+
+# VS Code launch config (berisi --dart-define API key di args)
+.vscode/launch.json
