@@ -24,7 +24,9 @@
 | 🔔 **Notifikasi Cerdas** | Pengingat haid, ovulasi, dan jadwal lainnya |
 | 👫 **Fitur Pasangan** | Hubungkan akun dengan pasangan via kode unik |
 | 🔐 **Autentikasi Aman** | Login via Email/Password atau Google Sign-In |
+| 🤖 **AI Assistant** | Chat dengan AI untuk konsultasi kesehatan reproduksi |
 | 🌙 **Desain iOS-style** | UI frosted glass, Cupertino widgets, dark/light mode |
+| ⚡ **Performance Optimized** | Device tier detection, 60fps+ smooth animations |
 
 ---
 
@@ -42,7 +44,7 @@ Project ini menggunakan **Feature-first architecture** dengan **Riverpod** sebag
 lib/
 ├── core/
 │   ├── theme/          # AppColors, AppTheme, AppTypography
-│   ├── utils/          # CycleCalculator, date helpers, dsb.
+│   ├── utils/          # CycleCalculator, date helpers, device tier detection
 │   └── widgets/        # GlassContainer, PrimaryButton, CycleRing, dsb.
 ├── data/
 │   ├── models/         # Cycle, DayLog, UserProfile, enums
@@ -50,12 +52,14 @@ lib/
 ├── features/
 │   ├── auth/           # Login, Sign Up, Google Sign-In
 │   ├── calendar/       # Kalender siklus bulanan
+│   ├── chat/           # AI Assistant untuk konsultasi kesehatan
 │   ├── insights/       # Grafik & artikel kesehatan
 │   ├── logging/        # Log harian (mood, gejala, flow)
 │   ├── notifications/  # Notifikasi lokal
 │   ├── onboarding/     # Onboarding multi-step
 │   ├── partner/        # Fitur pasangan (kode link)
 │   ├── profile/        # Profil & pengaturan
+│   ├── splash/         # Splash screen dengan animasi
 │   └── today/          # Dashboard utama
 └── routing/            # GoRouter, MainShell
 ```
@@ -104,6 +108,24 @@ Atau copy file contoh dan isi manual:
 ```bash
 cp lib/firebase_options.dart.example lib/firebase_options.dart
 # Edit firebase_options.dart dengan config Firebase kamu
+```
+
+### 2.1 Setup OpenRouter API Key (untuk Chat AI)
+
+Untuk fitur AI Assistant, kamu perlu API key dari [OpenRouter](https://openrouter.ai/):
+
+```bash
+# Copy file contoh
+cp lib/core/constants/api_keys.dart.example lib/core/constants/api_keys.dart
+
+# Edit dan isi dengan API key kamu
+# static const openRouterKey = 'YOUR_OPENROUTER_API_KEY_HERE';
+```
+
+Atau gunakan `--dart-define` saat build:
+
+```bash
+flutter build apk --release --split-per-abi --dart-define=OPENROUTER_API_KEY=your_key_here
 ```
 
 ### 3. Install dependencies
