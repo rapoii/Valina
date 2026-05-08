@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../../../core/constants/api_keys.dart';
-
 /// Service untuk memanggil OpenRouter Chat Completions API.
 class OpenRouterService {
   static const _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
@@ -26,6 +24,19 @@ Jawab dalam Bahasa Indonesia, singkat tapi informatif. Gunakan nada hangat dan s
 Jangan pernah memberikan diagnosis medis pasti — selalu sarankan konsultasi dokter untuk masalah serius.
 ''';
 
+  /// Get API key dari --dart-define
+  static String get _apiKey {
+    const keyFromDefine = String.fromEnvironment('OPENROUTER_API_KEY');
+    if (keyFromDefine.isNotEmpty) {
+      return keyFromDefine;
+    }
+
+    throw Exception(
+      'OPENROUTER_API_KEY tidak ditemukan. '
+      'Gunakan --dart-define=OPENROUTER_API_KEY=your_key saat build/run.',
+    );
+  }
+
   /// Kirim daftar pesan (history) ke API dan dapatkan balasan assistant.
   ///
   /// [messages] adalah list map `{"role": "user"|"assistant", "content": "..."}`.
@@ -42,7 +53,7 @@ Jangan pernah memberikan diagnosis medis pasti — selalu sarankan konsultasi do
     final response = await http.post(
       Uri.parse(_baseUrl),
       headers: {
-        'Authorization': 'Bearer ${ApiKeys.openRouterKey}',
+        'Authorization': 'Bearer $_apiKey',
         'Content-Type': 'application/json',
       },
       body: body,

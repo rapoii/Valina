@@ -79,6 +79,9 @@ dependencies:
   # iOS sudah otomatis pakai ProMotion via CADisableMinimumFrameDurationOnPhone.
   flutter_displaymode: ^0.6.0
 
+  # Device info untuk performance optimization
+  device_info_plus: ^11.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
