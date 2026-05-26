@@ -28,6 +28,36 @@ class _NotificationsSettingsScreenState
     );
   }
 
+  Future<void> _persistReminderChange(UserProfile updated) async {
+    final needsPermission =
+        updated.periodReminderEnabled ||
+        updated.ovulationReminderEnabled ||
+        updated.dailyReminderEnabled;
+    if (needsPermission) {
+      final allowed = await NotificationService.instance.requestPermission();
+      if (!allowed) {
+        if (!mounted) return;
+        await showCupertinoDialog<void>(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Izin notifikasi dibutuhkan'),
+            content: const Text(
+              'Aktifkan izin notifikasi dari pengaturan sistem agar reminder bisa berjalan.',
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    }
+    await _persist(updated);
+  }
+
   Future<void> _pickTime(UserProfile profile) async {
     var picked = DateTime(
       2024,
@@ -124,7 +154,7 @@ class _NotificationsSettingsScreenState
                     activeTrackColor: AppColors.accentPrimary,
                     onChanged: (v) async {
                       Haptics.selection();
-                      await _persist(
+                      await _persistReminderChange(
                         profile.copyWith(periodReminderEnabled: v),
                       );
                     },
@@ -139,7 +169,7 @@ class _NotificationsSettingsScreenState
                     activeTrackColor: AppColors.accentPrimary,
                     onChanged: (v) async {
                       Haptics.selection();
-                      await _persist(
+                      await _persistReminderChange(
                         profile.copyWith(ovulationReminderEnabled: v),
                       );
                     },
@@ -161,7 +191,9 @@ class _NotificationsSettingsScreenState
                     activeTrackColor: AppColors.accentPrimary,
                     onChanged: (v) async {
                       Haptics.selection();
-                      await _persist(profile.copyWith(dailyReminderEnabled: v));
+                      await _persistReminderChange(
+                        profile.copyWith(dailyReminderEnabled: v),
+                      );
                     },
                   ),
                 ),

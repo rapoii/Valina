@@ -62,6 +62,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) {
     final cycles = ref.watch(cyclesProvider).value ?? const [];
     final logs = ref.watch(allLogsProvider).value ?? const [];
+    final canViewPhase = ref.watch(canViewPhaseProvider);
     // Pre-compute semua forecast untuk bulan ini dalam satu provider
     final forecasts = ref.watch(_monthForecastsProvider(_displayedMonth));
 
@@ -99,9 +100,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     cycles: cycles,
                     logs: logs,
                     forecasts: forecasts,
+                    showPhaseForecast: canViewPhase,
                   ),
                 ),
-                const CalendarLegend(),
+                if (canViewPhase) const CalendarLegend(),
                 const SectionHeader(title: 'Detail tanggal'),
                 _DayDetail(date: _selectedDate),
               ]),
@@ -173,6 +175,7 @@ class _DayDetail extends ConsumerWidget {
       InsightsHelper.phaseColorEnum(forecast.phase),
     );
     final isReadOnly = ref.watch(isReadOnlyProvider);
+    final canViewPhase = ref.watch(canViewPhaseProvider);
     final canViewLogs = ref.watch(canViewLogsProvider);
     final canViewNotes = ref.watch(canViewNotesProvider);
     // Untuk male: hanya tampilkan log bila female membagikan log,
@@ -192,23 +195,24 @@ class _DayDetail extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: phaseColor.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                  ),
-                  child: Text(
-                    phaseLabel,
-                    style: AppTypography.caption1.copyWith(
-                      color: phaseColor,
-                      fontWeight: FontWeight.w600,
+                if (canViewPhase)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: phaseColor.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Text(
+                      phaseLabel,
+                      style: AppTypography.caption1.copyWith(
+                        color: phaseColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
                 const Spacer(),
                 Text(
                   DateFormatter.relativeDay(date),
@@ -219,7 +223,15 @@ class _DayDetail extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             Text(DateFormatter.fullDay(date), style: AppTypography.title3),
             const SizedBox(height: AppSpacing.sm),
-            _PregnancyChanceBadge(forecast: forecast),
+            if (canViewPhase)
+              _PregnancyChanceBadge(forecast: forecast)
+            else
+              Text(
+                'Pasangan tidak membagikan fase siklus dan prediksi.',
+                style: AppTypography.subheadline.copyWith(
+                  color: AppColors.labelSecondary,
+                ),
+              ),
             const SizedBox(height: AppSpacing.md),
             if (!showLogContent)
               Text(

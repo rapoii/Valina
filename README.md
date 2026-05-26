@@ -112,19 +112,10 @@ cp lib/firebase_options.dart.example lib/firebase_options.dart
 
 ### 2.1 Setup OpenRouter API Key (untuk Chat AI)
 
-Untuk fitur AI Assistant, kamu perlu API key dari [OpenRouter](https://openrouter.ai/):
+Fitur AI Assistant membaca API key dari `--dart-define`:
 
 ```bash
-# Copy file contoh
-cp lib/core/constants/api_keys.dart.example lib/core/constants/api_keys.dart
-
-# Edit dan isi dengan API key kamu
-# static const openRouterKey = 'YOUR_OPENROUTER_API_KEY_HERE';
-```
-
-Atau gunakan `--dart-define` saat build:
-
-```bash
+flutter run --dart-define=OPENROUTER_API_KEY=your_key_here
 flutter build apk --release --split-per-abi --dart-define=OPENROUTER_API_KEY=your_key_here
 ```
 

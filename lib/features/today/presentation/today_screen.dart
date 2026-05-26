@@ -38,6 +38,7 @@ class TodayScreen extends ConsumerWidget {
     final insight = InsightsHelper.forForecast(forecast);
     final cyclesReady = !cyclesAsync.isLoading;
     final isReadOnly = ref.watch(isReadOnlyProvider);
+    final canViewPhase = ref.watch(canViewPhaseProvider);
     final canViewLogs = ref.watch(canViewLogsProvider);
 
     // Header: tampilkan nama OWN user (bukan partner), supaya male tetap
@@ -77,9 +78,14 @@ class TodayScreen extends ConsumerWidget {
                 if (allReady) ...[
                   if (isReadOnly)
                     _PartnerBanner(partnerName: effectiveProfile?.name),
-                  RepaintBoundary(child: CycleStatusCard(forecast: forecast)),
-                  const SizedBox(height: AppSpacing.xl),
-                  RepaintBoundary(child: InsightCard(insight: insight)),
+                  if (canViewPhase) ...[
+                    RepaintBoundary(child: CycleStatusCard(forecast: forecast)),
+                    const SizedBox(height: AppSpacing.xl),
+                    RepaintBoundary(child: InsightCard(insight: insight)),
+                  ] else ...[
+                    const _PhaseHiddenCard(),
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
                   // Quick log hanya untuk female. Male: read-only, dan kalau
                   // canViewLogs true bisa lihat log harian sebagai info.
                   if (!isReadOnly) ...[
@@ -93,8 +99,12 @@ class TodayScreen extends ConsumerWidget {
                     const SectionHeader(title: 'Catatan pasangan hari ini'),
                     QuickLogRow(todayLog: todayLog, onTap: null),
                   ],
-                  const SizedBox(height: AppSpacing.xxl),
-                  RepaintBoundary(child: _ForecastTimeline(forecast: forecast)),
+                  if (canViewPhase) ...[
+                    const SizedBox(height: AppSpacing.xxl),
+                    RepaintBoundary(
+                      child: _ForecastTimeline(forecast: forecast),
+                    ),
+                  ],
                 ] else
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 80),
@@ -144,6 +154,32 @@ class _PartnerBanner extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PhaseHiddenCard extends StatelessWidget {
+  const _PhaseHiddenCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.bgElevated,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: AppShadow.subtle,
+        ),
+        child: Text(
+          'Pasangan tidak membagikan fase siklus dan prediksi.',
+          style: AppTypography.subheadline.copyWith(
+            color: AppColors.labelSecondary,
+          ),
         ),
       ),
     );

@@ -98,4 +98,4 @@ Pastikan `google-services.json` sudah ada di `android/app/` dan `lib/firebase_op
 
 ### AI Chat tidak bekerja
 
-Pastikan `OPENROUTER_API_KEY` sudah diset via `--dart-define` atau di `lib/core/constants/api_keys.dart`.
+Pastikan `OPENROUTER_API_KEY` sudah diset via `--dart-define` saat `flutter run` atau `flutter build`.

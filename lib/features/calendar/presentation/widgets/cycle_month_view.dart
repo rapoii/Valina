@@ -21,6 +21,7 @@ class CycleMonthView extends StatelessWidget {
     required this.cycles,
     required this.logs,
     required this.forecasts,
+    this.showPhaseForecast = true,
   });
 
   final DateTime month;
@@ -29,6 +30,7 @@ class CycleMonthView extends StatelessWidget {
   final List<Cycle> cycles;
   final List<DayLog> logs;
   final Map<DateTime, CycleForecast> forecasts;
+  final bool showPhaseForecast;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +90,7 @@ class CycleMonthView extends StatelessWidget {
                           hasSexualActivity: activityDates.contains(dateOnly),
                           forecast:
                               forecasts[dateOnly] ?? _defaultForecast(dateOnly),
+                          showPhaseForecast: showPhaseForecast,
                           onTap: () {
                             HapticFeedback.selectionClick();
                             onSelectDate(date);
@@ -175,6 +178,7 @@ class _DayCell extends StatelessWidget {
     required this.isInActualPeriod,
     required this.hasSexualActivity,
     required this.forecast,
+    required this.showPhaseForecast,
     required this.onTap,
   });
 
@@ -184,6 +188,7 @@ class _DayCell extends StatelessWidget {
   final bool isInActualPeriod;
   final bool hasSexualActivity;
   final CycleForecast forecast;
+  final bool showPhaseForecast;
   final VoidCallback onTap;
 
   @override
@@ -206,12 +211,16 @@ class _DayCell extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (isFertileOnly && !isPredictedPeriod) _buildFertileBackground(),
-            if (isOvulation && !isPredictedPeriod) _buildOvulationBackground(),
-            if (isInActualPeriod)
-              _buildPeriodBackground()
-            else if (isPredictedPeriod)
-              _buildPredictedBackground(),
+            if (showPhaseForecast) ...[
+              if (isFertileOnly && !isPredictedPeriod)
+                _buildFertileBackground(),
+              if (isOvulation && !isPredictedPeriod)
+                _buildOvulationBackground(),
+              if (isInActualPeriod)
+                _buildPeriodBackground()
+              else if (isPredictedPeriod)
+                _buildPredictedBackground(),
+            ],
             if (selected) _buildSelectedBorder(),
             _buildContent(isToday, isInActualPeriod),
           ],
@@ -275,7 +284,7 @@ class _DayCell extends StatelessWidget {
         Text(
           '${date.day}',
           style: AppTypography.subheadline.copyWith(
-            color: isInActualPeriod
+            color: showPhaseForecast && isInActualPeriod
                 ? CupertinoColors.white
                 : isToday
                 ? AppColors.accentPrimary
